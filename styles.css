@@ -368,6 +368,9 @@ a { color: inherit; text-decoration: none; transition: color 0.45s var(--ease-so
 @keyframes scanY { from { background-position: 0 120%; } to { background-position: 0 -120%; } }
 .portrait__hud { position: absolute; left: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 2px; font-size: 11px; letter-spacing: 0.08em; color: rgba(242, 244, 247, 0.85); background: rgba(7, 8, 10, 0.55); backdrop-filter: blur(6px); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); }
 .portrait__hud .ok { color: var(--ok); }
+.portrait__fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.portrait.fx-armed img { clip-path: inset(0 0 calc(100% - var(--reveal, 0%)) 0); }
+.portrait.fx-armed .portrait__scan { opacity: 0; }
 .corner { position: absolute; width: 22px; height: 22px; border-color: var(--ice); border-style: solid; border-width: 0; transition: transform 0.7s var(--ease); }
 .corner.tl { top: 14px; left: 14px; border-top-width: 2px; border-left-width: 2px; }
 .corner.tr { top: 14px; right: 14px; border-top-width: 2px; border-right-width: 2px; }

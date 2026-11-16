@@ -932,5 +932,194 @@
     });
   })();
 
+  /* ---------- Portrait: identity scan (ASCII face, scan line, face lock) ---------- */
+  (() => {
+    const box = $("#portrait");
+    const img = box && $("img", box);
+    const cv = box && $(".portrait__fx", box);
+    if (!box || !img || !cv) return;
+    if (reduced) { cv.remove(); return; }
+    const fr = document.documentElement.lang === "fr";
+    const ctx = cv.getContext("2d");
+    const hud = $$(".portrait__hud span", box);
+    const hudText = hud.map((s) => s.textContent);
+    const NOISE = "01ABCDEF0123456789#%&$@*+=<>/\\";
+    const rnd = (a) => a[(Math.random() * a.length) | 0];
+    const RAMP = [" ", " ", ".", ".:", ":-", "=+", "+*1", "7105", "3569", "A4$%", "#8@&"];
+    const glyph = (v) => rnd(RAMP[Math.min(RAMP.length - 1, (v * RAMP.length) | 0)]);
+    const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const clamp = (x) => Math.min(Math.max(x, 0), 1);
+    const FACE = { x0: 0.28, y0: 0.12, x1: 0.68, y1: 0.72 };
+    const PTS = [[0.47, 0.2], [0.36, 0.37], [0.6, 0.36], [0.39, 0.43], [0.55, 0.42], [0.48, 0.52],
+      [0.42, 0.59], [0.55, 0.58], [0.48, 0.6], [0.48, 0.7], [0.3, 0.5], [0.66, 0.5]];
+    const EDGES = [[0, 1], [0, 2], [1, 3], [2, 4], [3, 5], [4, 5], [5, 6], [5, 7], [6, 8], [7, 8], [8, 9], [10, 3], [11, 4], [10, 9], [11, 9], [1, 2]];
+    const LABEL = fr ? "CORRESP. 99,8 % · ID VÉRIFIÉE" : "MATCH 99.8% · ID VERIFIED";
+    const SCANLBL = fr ? "ANALYSE BIOMÉTRIQUE" : "BIOMETRIC SCAN";
+
+    box.classList.add("fx-armed");
+    box.style.setProperty("--reveal", "0%");
+    const scrambleHud = () => hud.forEach((s, i) => { s.textContent = hudText[i].replace(/[^\s:/.]/g, () => rnd(NOISE)); });
+    scrambleHud();
+
+    let W, H, cell, cellH, cols, rows, lum, chars, delay, t0, raf, hudTimer;
+    const setup = () => {
+      W = box.clientWidth; H = box.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv.width = W * dpr; cv.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cell = Math.max(8, W / 56); cellH = cell * 1.18;
+      cols = Math.ceil(W / cell); rows = Math.ceil(H / cellH);
+      const off = document.createElement("canvas");
+      off.width = cols; off.height = rows;
+      const o = off.getContext("2d", { willReadFrequently: true });
+      o.drawImage(img, 0, 0, cols, rows);
+      const d = o.getImageData(0, 0, cols, rows).data;
+      lum = new Float32Array(cols * rows);
+      let lo = 1, hi = 0;
+      for (let i = 0; i < lum.length; i++) {
+        const v = (0.299 * d[i * 4] + 0.587 * d[i * 4 + 1] + 0.114 * d[i * 4 + 2]) / 255;
+        lum[i] = v; lo = Math.min(lo, v); hi = Math.max(hi, v);
+      }
+      for (let i = 0; i < lum.length; i++) lum[i] = Math.pow(clamp((lum[i] - lo) / (hi - lo || 1)), 0.8);
+      chars = Array.from(lum, (v) => glyph(v));
+      delay = Array.from(lum, (_, i) => (i % cols) / cols * 250 + Math.random() * 550);
+    };
+
+    const T_DECODE = 1100, T_SCAN = 1900, T_LOCK = 1900, T_FADE = 700;
+    const frame = (now) => {
+      const t = now - t0;
+      ctx.clearRect(0, 0, W, H);
+      const scanP = clamp((t - T_DECODE) / T_SCAN);
+      const y = ease(scanP) * (H + 60) - 30;
+      box.style.setProperty("--reveal", clamp(y / H) * 100 + "%");
+      ctx.globalAlpha = 1;
+
+      // ASCII face (only below the scan line)
+      if (scanP < 1) {
+        ctx.font = `500 ${cell * 0.92}px "JetBrains Mono", monospace`;
+        ctx.textBaseline = "top";
+        for (let r = 0; r < rows; r++) {
+          const cy = r * cellH;
+          if (cy + cellH < y - 34) continue;
+          for (let c = 0; c < cols; c++) {
+            const i = r * cols + c;
+            const on = clamp((t - delay[i]) / 260);
+            if (Math.random() < 0.04) chars[i] = on < 1 ? rnd(NOISE) : glyph(lum[i]);
+            let a = (0.35 + lum[i] * 0.65) * on;
+            if (a < 0.03) continue;
+            const band = cy < y;
+            if (band) { ctx.fillStyle = "#5dffb0"; a *= clamp((cy - (y - 34)) / 34) * 1.4; }
+            else ctx.fillStyle = "#9fc3e6";
+            ctx.globalAlpha = Math.min(a, 1);
+            ctx.fillText(chars[i], c * cell, cy);
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // scan line + glitch slices
+      if (scanP > 0 && scanP < 1) {
+        for (let k = 0; k < 3; k++) {
+          const sh = 4 + Math.random() * 10;
+          const sy = y - Math.random() * 70;
+          if (sy < 0 || sy + sh > H) continue;
+          const dx = (Math.random() - 0.5) * 22;
+          ctx.globalAlpha = 0.75;
+          ctx.drawImage(img, 0, (sy / H) * img.naturalHeight, img.naturalWidth, (sh / H) * img.naturalHeight, dx, sy, W, sh);
+        }
+        ctx.globalAlpha = 1;
+        const g = ctx.createLinearGradient(0, y - 40, 0, y + 2);
+        g.addColorStop(0, "rgba(93,255,176,0)");
+        g.addColorStop(1, "rgba(93,255,176,0.35)");
+        ctx.fillStyle = g; ctx.fillRect(0, y - 40, W, 42);
+        ctx.fillStyle = "#d9fff0"; ctx.shadowColor = "#5dffb0"; ctx.shadowBlur = 16;
+        ctx.fillRect(0, y, W, 2); ctx.shadowBlur = 0;
+        ctx.font = `600 10px "JetBrains Mono", monospace`;
+        ctx.fillStyle = "#5dffb0";
+        ctx.fillText(`${SCANLBL} ${String(Math.min(100, Math.round(scanP * 100))).padStart(3, "0")}%`, 16, Math.min(Math.max(y + 8, 12), H - 22));
+      }
+
+      // face lock: bracket, landmark mesh, label
+      const lt = t - T_DECODE - T_SCAN;
+      if (lt > 0) {
+        const fade = 1 - clamp((lt - T_LOCK) / T_FADE);
+        ctx.globalAlpha = fade;
+        const k = ease(clamp(lt / 520));
+        const x0 = (FACE.x0 * k) * W, y0 = (FACE.y0 * k) * H;
+        const x1 = (1 - (1 - FACE.x1) * k) * W, y1 = (1 - (1 - FACE.y1) * k) * H;
+        const L = 18;
+        ctx.strokeStyle = "#5dffb0"; ctx.lineWidth = 2; ctx.shadowColor = "#5dffb0"; ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0 + L); ctx.lineTo(x0, y0); ctx.lineTo(x0 + L, y0);
+        ctx.moveTo(x1 - L, y0); ctx.lineTo(x1, y0); ctx.lineTo(x1, y0 + L);
+        ctx.moveTo(x0, y1 - L); ctx.lineTo(x0, y1); ctx.lineTo(x0 + L, y1);
+        ctx.moveTo(x1 - L, y1); ctx.lineTo(x1, y1); ctx.lineTo(x1, y1 - L);
+        ctx.stroke(); ctx.shadowBlur = 0;
+        const mt = clamp((lt - 450) / 700);
+        if (mt > 0) {
+          ctx.lineWidth = 1; ctx.strokeStyle = "rgba(93,255,176,0.55)";
+          const shown = Math.ceil(EDGES.length * mt);
+          ctx.beginPath();
+          for (let e = 0; e < shown; e++) {
+            const [a, b] = EDGES[e];
+            ctx.moveTo(PTS[a][0] * W, PTS[a][1] * H); ctx.lineTo(PTS[b][0] * W, PTS[b][1] * H);
+          }
+          ctx.stroke();
+          ctx.fillStyle = "#d9fff0";
+          PTS.slice(0, Math.ceil(PTS.length * mt)).forEach(([px, py]) => { ctx.beginPath(); ctx.arc(px * W, py * H, 2.2, 0, 7); ctx.fill(); });
+        }
+        if (lt > 900) {
+          const n = Math.min(LABEL.length, Math.floor((lt - 900) / 22));
+          ctx.font = `600 10.5px "JetBrains Mono", monospace`;
+          const txt = LABEL.slice(0, n);
+          const tw = ctx.measureText(LABEL).width + 14;
+          ctx.fillStyle = "rgba(7,8,10,0.75)"; ctx.fillRect(x0, y0 - 24, tw, 18);
+          ctx.fillStyle = "#5dffb0"; ctx.textBaseline = "middle"; ctx.fillText(txt, x0 + 7, y0 - 15);
+          ctx.textBaseline = "top";
+        }
+        ctx.globalAlpha = 1;
+        if (fade <= 0) { finish(); return; }
+      }
+      raf = requestAnimationFrame(frame);
+    };
+
+    const decryptHud = () => {
+      clearInterval(hudTimer);
+      const start = performance.now();
+      const tick = () => {
+        const p = clamp((performance.now() - start) / 700);
+        hud.forEach((s, i) => {
+          const full = hudText[i], keep = Math.floor(full.length * p);
+          s.textContent = full.slice(0, keep) + full.slice(keep).replace(/[^\s:/.]/g, () => rnd(NOISE));
+        });
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      tick();
+    };
+
+    function finish() {
+      cancelAnimationFrame(raf);
+      ctx.clearRect(0, 0, W, H);
+      box.classList.remove("fx-armed");
+      box.style.removeProperty("--reveal");
+      hud.forEach((s, i) => { s.textContent = hudText[i]; });
+    }
+
+    const run = async () => {
+      try { if (!img.complete) await img.decode(); setup(); }
+      catch (e) { finish(); return; }
+      hudTimer = setInterval(scrambleHud, 70);
+      setTimeout(decryptHud, T_DECODE + T_SCAN + 200);
+      t0 = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
+
+    img.loading = "eager";
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(run, 250); }
+    }, { threshold: 0.45 });
+    io.observe(box);
+  })();
+
   onScroll();
 })();
