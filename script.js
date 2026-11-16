@@ -216,15 +216,6 @@
   $$("#menu a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
   document.addEventListener("keydown", (e) => e.key === "Escape" && setMenu(false));
 
-  /* ---------- Card spotlight ---------- */
-  $$(".card").forEach((card) => {
-    card.addEventListener("pointermove", (e) => {
-      const r = card.getBoundingClientRect();
-      card.style.setProperty("--mx", e.clientX - r.left + "px");
-      card.style.setProperty("--my", e.clientY - r.top + "px");
-    });
-  });
-
   /* ---------- Experience progress ---------- */
   const tl = $("#timeline");
   const expBar = $("#expProgress");
@@ -655,6 +646,291 @@
       logLine("ALERT › T0836 detected · 14s · layer mismatch", "g");
     }
   }
+
+  /* =========================================================
+     EXPERTISE RADAR · sweeping beam, one sector per domain
+     ========================================================= */
+  const radar = $("#radar");
+  if (radar) {
+    const NSR = "http://www.w3.org/2000/svg";
+    const items = $$(".radar__item");
+    const n = items.length;
+    const R = 170;
+    const sectorG = $("#radarSectors");
+    const blipG = $("#radarBlips");
+    const labelG = $("#radarLabels");
+    const arc = $("#radarArc");
+    const beam = $(".radar__beam", radar);
+    const detail = $("#radarDetail");
+    const pt = (a, r) => [r * Math.sin((a * Math.PI) / 180), -r * Math.cos((a * Math.PI) / 180)];
+    const mk = (tag, attrs) => {
+      const el = document.createElementNS(NSR, tag);
+      for (const k in attrs) el.setAttribute(k, attrs[k]);
+      return el;
+    };
+    const blips = [];
+    const sectors = [];
+
+    items.forEach((it, i) => {
+      const a0 = (i * 360) / n;
+      const a1 = ((i + 1) * 360) / n;
+      const [x0, y0] = pt(a0, R);
+      const [x1, y1] = pt(a1, R);
+      const sec = mk("path", { d: `M0 0 L${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1} Z`, class: "radar__sector" });
+      sectorG.appendChild(sec);
+      sectors.push(sec);
+
+      const [lx, ly] = pt((a0 + a1) / 2, R + 22);
+      const label = mk("text", { x: lx, y: ly + 4, class: "radar__label" });
+      label.textContent = it.dataset.short;
+      labelG.appendChild(label);
+
+      const tools = it.dataset.tools.split(",").map((t) => t.trim());
+      tools.forEach((t, k) => {
+        // stagger across three angular lanes and rising radius so labels don't collide
+        const span = a1 - a0;
+        const a = a0 + span * [0.2, 0.5, 0.8][k % 3];
+        const r = 48 + k * (96 / Math.max(tools.length - 1, 1));
+        const [bx, by] = pt(a, r);
+        const g = mk("g", { class: "radar__blip", transform: `translate(${bx.toFixed(1)} ${by.toFixed(1)})` });
+        g.appendChild(mk("circle", { r: 3.2 }));
+        g.appendChild(mk("circle", { r: 8, class: "radar__halo" }));
+        const tip = mk("title", {});
+        tip.textContent = t;
+        g.appendChild(tip);
+        blipG.appendChild(g);
+        blips.push({ g, a, i, k, chip: null });
+      });
+
+      const activate = () => { setActive(i); lastUser = performance.now(); };
+      it.addEventListener("mouseenter", activate);
+      it.addEventListener("focus", activate);
+      it.addEventListener("click", activate);
+      sec.addEventListener("mouseenter", activate);
+      sec.addEventListener("click", activate);
+    });
+
+    let active = -1;
+    let lastUser = -Infinity;
+    function setActive(i) {
+      if (i === active) return;
+      active = i;
+      const it = items[i];
+      items.forEach((x, k) => x.setAttribute("aria-pressed", k === i));
+      sectors.forEach((s, k) => s.classList.toggle("active", k === i));
+      blips.forEach((b) => b.g.classList.toggle("active", b.i === i));
+      const a0 = (i * 360) / n + 2;
+      const a1 = ((i + 1) * 360) / n - 2;
+      const [x0, y0] = pt(a0, R + 6);
+      const [x1, y1] = pt(a1, R + 6);
+      arc.setAttribute("d", `M${x0} ${y0} A${R + 6} ${R + 6} 0 0 1 ${x1} ${y1}`);
+      const tools = it.dataset.tools.split(",").map((t, k) => `<span data-k="${k}">${escapeHtml(t.trim())}</span>`).join("");
+      detail.innerHTML = `
+        <p class="radar__kicker mono">${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")} · ${escapeHtml(it.dataset.short)}</p>
+        <h3>${escapeHtml($(".radar__name", it).textContent)}</h3>
+        <p class="radar__desc-out">${escapeHtml($(".radar__desc", it).textContent)}</p>
+        <div class="chips radar__chips">${tools}</div>`;
+      // each chip is wired to its dot: it lights up when the beam passes over it
+      const chips = $$(".radar__chips span", detail);
+      blips.forEach((b) => { b.chip = b.i === i ? chips[b.k] : null; });
+      if (!reduced) {
+        detail.animate(
+          [{ opacity: 0, transform: "translateY(10px)", filter: "blur(4px)" }, { opacity: 1, transform: "none", filter: "blur(0)" }],
+          { duration: 600, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
+        );
+      }
+    }
+    setActive(0);
+
+    // beam rotation + radar persistence on blips
+    let sweep = 0;
+    let last = performance.now();
+    let cycleT = 0;
+    let running = false;
+    const frame = (now) => {
+      if (!running) return;
+      const dt = Math.min(now - last, 60);
+      last = now;
+      sweep = (sweep + dt * 0.09) % 360;
+      beam.style.transform = `rotate(${sweep}deg)`;
+      for (const b of blips) {
+        const diff = (((sweep - b.a) % 360) + 360) % 360;
+        const glow = diff < 200 ? Math.pow(1 - diff / 200, 2) : 0;
+        b.g.style.setProperty("--glow", glow.toFixed(3));
+        if (b.chip) b.chip.style.setProperty("--glow", glow.toFixed(3));
+      }
+      // auto-cycle through domains unless the visitor is exploring
+      cycleT += dt;
+      if (now - lastUser > 7000 && cycleT > 4200) {
+        cycleT = 0;
+        setActive((active + 1) % n);
+      }
+      requestAnimationFrame(frame);
+    };
+    if (reduced) {
+      blips.forEach((b) => b.g.style.setProperty("--glow", 0.6));
+    } else {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting && !running) { running = true; last = performance.now(); requestAnimationFrame(frame); }
+        else if (!e.isIntersecting) running = false;
+      }).observe(radar);
+    }
+  }
+
+  /* =========================================================
+     SMOOTH SECTION SCROLLING (desktop, mouse/trackpad)
+     One gesture moves one section with an eased glide.
+     Tall sections (experience, why me, claim) scroll freely
+     inside with inertia, then hand over to the next section.
+     ========================================================= */
+  (() => {
+    const mq = window.matchMedia("(min-width: 1001px) and (hover: hover) and (pointer: fine)");
+    if (reduced || !mq.matches) return;
+    const root = document.documentElement;
+    root.classList.add("smooth-engine");
+
+    let sections = [];
+    let maxY = 0;
+    function measure() {
+      const vh = window.innerHeight;
+      maxY = Math.max(root.scrollHeight - vh, 0);
+      const els = [$(".hero"), ...$$(".snap, .claim"), $(".footer")];
+      sections = els
+        .filter(Boolean)
+        .map((el, idx) => {
+          if (idx === 0) return { start: 0, end: 0 };
+          if (el.classList.contains("footer")) return { start: maxY, end: maxY };
+          const top = el.getBoundingClientRect().top + window.scrollY;
+          const start = Math.min(Math.round(top), maxY);
+          const end = Math.min(Math.max(Math.round(top + el.offsetHeight - vh), start), maxY);
+          return { start, end };
+        })
+        .sort((a, b) => a.start - b.start)
+        .filter((s, k, arr) => k === 0 || s.start > arr[k - 1].start + 4);
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("load", measure);
+    if (document.fonts) document.fonts.ready.then(measure);
+
+    const clampY = (y) => Math.min(Math.max(y, 0), maxY);
+    const ease = (t) => (t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2);
+    let current = window.scrollY;
+    let target = current;
+    let written = current;
+    let tween = null;
+    let jumpLock = false;
+    let edgeLock = false;
+    let lastWheel = 0;
+
+    function goTo(y, dur) {
+      y = Math.round(clampY(y));
+      const dist = Math.abs(y - current);
+      tween = { from: current, to: y, t0: performance.now(), dur: dur || Math.min(Math.max(700 + dist * 0.25, 900), 1500) };
+      target = y;
+    }
+
+    const loop = (now) => {
+      // the visitor dragged the scrollbar or used find-in-page: follow them
+      if (!tween && Math.abs(window.scrollY - written) > 3) {
+        current = target = written = window.scrollY;
+      }
+      if (tween) {
+        const p = Math.min((now - tween.t0) / tween.dur, 1);
+        current = tween.from + (tween.to - tween.from) * ease(p);
+        if (p >= 1) { tween = null; current = target; }
+      } else if (Math.abs(target - current) > 0.4) {
+        current += (target - current) * 0.1;
+      } else {
+        current = target;
+      }
+      if (Math.abs(window.scrollY - current) > 0.4) {
+        window.scrollTo(0, current);
+        written = window.scrollY;
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+
+    function indexAt(y) {
+      return sections.findIndex((s) => y >= s.start - 3 && y <= s.end + 3);
+    }
+
+    // move by one "step": free scroll inside tall sections, otherwise glide to the neighbour
+    function step(dir, amount, fromWheel) {
+      const y = tween ? tween.to : target;
+      let i = indexAt(y);
+      if (i === -1) {
+        // somewhere between two snap points (after a scrollbar drag)
+        if (dir > 0) { const nx = sections.find((s) => s.start > y); if (nx) goTo(nx.start); }
+        else { const pv = [...sections].reverse().find((s) => s.end < y); if (pv) goTo(pv.end); }
+        jumpLock = fromWheel;
+        return;
+      }
+      const s = sections[i];
+      const tall = s.end - s.start > 4;
+      if (tall && ((dir > 0 && y < s.end - 1) || (dir < 0 && y > s.start + 1))) {
+        if (tween) return;
+        target = Math.round(dir > 0 ? Math.min(y + amount, s.end) : Math.max(y - amount, s.start));
+        if (fromWheel && (target === s.end || target === s.start)) edgeLock = true;
+        return;
+      }
+      if (fromWheel && edgeLock) return;
+      const nb = sections[i + dir];
+      if (!nb) return;
+      goTo(dir > 0 ? nb.start : nb.end);
+      if (fromWheel) jumpLock = true;
+    }
+
+    const blocked = () => body.classList.contains("menu-open") || body.classList.contains("is-loading");
+
+    window.addEventListener(
+      "wheel",
+      (e) => {
+        if (e.ctrlKey || blocked()) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+        e.preventDefault();
+        const now = performance.now();
+        const newGesture = now - lastWheel > 200;
+        lastWheel = now;
+        if (newGesture && !tween) { jumpLock = false; edgeLock = false; measure(); }
+        if (tween || jumpLock) return;
+        const d = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1);
+        if (Math.abs(d) < 1) return;
+        step(Math.sign(d), Math.abs(d) * 1.15, true);
+      },
+      { passive: false }
+    );
+
+    window.addEventListener("keydown", (e) => {
+      if (blocked() || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.target.closest && e.target.closest("input, textarea, select, [contenteditable]")) return;
+      const k = e.key;
+      if (k === " " && e.target.closest && e.target.closest("button, summary, a")) return;
+      let dir = 0;
+      if (k === "ArrowDown" || k === "PageDown" || (k === " " && !e.shiftKey)) dir = 1;
+      else if (k === "ArrowUp" || k === "PageUp" || (k === " " && e.shiftKey)) dir = -1;
+      else if (k === "Home") { e.preventDefault(); goTo(0); return; }
+      else if (k === "End") { e.preventDefault(); goTo(maxY); return; }
+      if (!dir) return;
+      e.preventDefault();
+      measure();
+      step(dir, k.startsWith("Arrow") ? 140 : window.innerHeight * 0.8, false);
+    });
+
+    // in-page links (menu, dots, buttons) glide instead of jumping
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const id = a.getAttribute("href");
+      if (id.length < 2) return;
+      const el = id === "#top" ? null : document.querySelector(id);
+      if (id !== "#top" && !el) return;
+      e.preventDefault();
+      measure();
+      goTo(el ? el.getBoundingClientRect().top + window.scrollY : 0);
+    });
+  })();
 
   onScroll();
 })();
