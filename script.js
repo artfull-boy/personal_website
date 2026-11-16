@@ -1100,6 +1100,9 @@
     function finish() {
       cancelAnimationFrame(raf);
       ctx.clearRect(0, 0, W, H);
+      const amb = $(".portrait__scan", box);
+      if (amb) { amb.style.animation = "none"; void amb.offsetHeight; amb.style.animation = ""; }
+      box.classList.add("fx-done");
       box.classList.remove("fx-armed");
       box.style.removeProperty("--reveal");
       hud.forEach((s, i) => { s.textContent = hudText[i]; });
