@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://iliasrais.vercel.app/sitemap.xml
