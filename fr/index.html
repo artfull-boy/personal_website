@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ilias Rais | Ingénieur logiciel &amp; cybersécurité</title>
+  <meta name="description" content="Ilias Rais, ingénieur logiciel et étudiant du Master Erasmus Mundus CYBERUS, spécialisé en sécurité ICS/OT, tests d'intrusion et ingénierie web sécurisée. Disponible pour un stage de 6 mois à partir de février 2027." />
+  <meta property="og:title" content="Ilias Rais | Ingénieur de formation, cybersécurité par passion" />
+  <meta property="og:description" content="Recherche en sécurité ICS/OT, tests d'intrusion et développement full-stack sécurisé." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:locale:alternate" content="en_GB" />
+  <meta property="og:image" content="../assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#07080a" />
+  <link rel="alternate" hreflang="en" href="../" />
+  <link rel="alternate" hreflang="fr" href="./" />
+  <link rel="preload" href="../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2307080a'/><text x='5' y='22' font-family='monospace' font-size='15' font-weight='700' fill='%239fc3e6'>IR</text></svg>" />
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader__term">
+      <div class="preloader__bar"><span></span><span></span><span></span><em>ilias@cyberus:~</em></div>
+      <pre id="bootLog"></pre>
+      <div class="preloader__progress"><i id="bootProgress"></i></div>
+    </div>
+  </div>
+
+  <!-- BARRE UTILITAIRE -->
+  <div class="utility snap-top">
+    <div class="utility__inner">
+      <span class="status-dot"></span>
+      <span class="mono">Disponible pour un stage de 6 mois &middot; dès février 2027</span>
+      <nav class="utility__links" aria-label="Liens rapides">
+        <a href="../assets/Ilias_Rais_CV_FR.pdf" target="_blank" rel="noopener">Télécharger le CV</a>
+        <a href="https://github.com/artfull-boy" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/in/ilias-rais" target="_blank" rel="noopener">LinkedIn</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <a href="#top" class="nav__logo" aria-label="Ilias Rais, retour en haut">
+      <span class="nav__mark">IR</span><span class="nav__cursor">_</span>
+      <span class="nav__name">Ilias Rais</span>
+    </a>
+    <div class="nav__right">
+      <div class="lang mono" aria-label="Langue">
+        <a href="../" class="lang__opt" hreflang="en" lang="en">EN</a>
+        <a href="./" class="lang__opt is-active" hreflang="fr" lang="fr" aria-current="page">FR</a>
+      </div>
+      <a href="#contact" class="btn btn--ghost btn--sm nav__cta magnetic">Travaillons ensemble</a>
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="menu">
+        <span class="menu-toggle__label" data-open="Menu" data-close="Fermer">Menu</span>
+        <span class="menu-toggle__icon"><i></i><i></i></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- POINTS DE SECTION -->
+  <nav class="dots" id="dots" aria-label="Sections">
+    <a href="#top" data-label="Accueil"></a>
+    <a href="#about" data-label="À propos"></a>
+    <a href="#numbers" data-label="Chiffres"></a>
+    <a href="#expertise" data-label="Expertise"></a>
+    <a href="#research" data-label="Recherche"></a>
+    <a href="#experience" data-label="Expérience"></a>
+    <a href="#projects" data-label="Projets"></a>
+    <a href="#why" data-label="Pourquoi moi"></a>
+    <a href="#credentials" data-label="Certifications"></a>
+    <a href="#education" data-label="Formation"></a>
+    <a href="#faq" data-label="FAQ"></a>
+    <a href="#contact" data-label="Contact"></a>
+  </nav>
+
+  <!-- MENU -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <div class="menu__inner">
+      <ol class="menu__list">
+        <li><a href="#about"><span>01</span>À propos</a></li>
+        <li><a href="#expertise"><span>02</span>Expertise</a></li>
+        <li><a href="#research"><span>03</span>Recherche</a></li>
+        <li><a href="#experience"><span>04</span>Expérience</a></li>
+        <li><a href="#why"><span>05</span>Pourquoi moi</a></li>
+        <li><a href="#credentials"><span>06</span>Certifications</a></li>
+        <li><a href="#contact"><span>07</span>Contact</a></li>
+      </ol>
+      <div class="menu__side">
+        <p class="eyebrow">Contact</p>
+        <a href="mailto:ivarrais2001@gmail.com" class="menu__mail">ivarrais2001@gmail.com</a>
+        <a href="https://linkedin.com/in/ilias-rais" target="_blank" rel="noopener">LinkedIn &nearr;</a>
+        <a href="https://github.com/artfull-boy" target="_blank" rel="noopener">GitHub &nearr;</a>
+        <a href="../assets/Ilias_Rais_CV_FR.pdf" target="_blank" rel="noopener">CV (PDF) &nearr;</a>
+      </div>
+    </div>
+  </div>
+
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <canvas id="netCanvas" class="hero__canvas" aria-hidden="true"></canvas>
+      <div class="hero__horizon" aria-hidden="true">
+        <div class="hero__glow"></div>
+        <div class="hero__arc"></div>
+        <div class="hero__scan"></div>
+      </div>
+
+      <div class="hero__content" id="heroContent">
+        <p class="eyebrow hero__eyebrow"><span class="pulse"></span> Systèmes sécurisés &middot; Sécurité offensive &middot; ICS/OT</p>
+        <h1 class="hero__title">
+          <span class="line"><span class="decrypt" data-text="Ingénieur de formation,">Ingénieur de formation,</span></span>
+          <span class="line"><span class="decrypt" data-text="cybersécurité par passion">cybersécurité par passion</span></span>
+        </h1>
+        <p class="hero__sub">Erasmus Mundus CYBERUS <span class="sep">|</span> Ingénieur logiciel</p>
+        <div class="hero__ctas">
+          <a href="#contact" class="btn btn--light magnetic">Discutons <span class="btn__arrow">&rarr;</span></a>
+          <a href="#research" class="btn btn--ghost magnetic">Voir ma recherche</a>
+        </div>
+      </div>
+
+      <div class="hero__bottom">
+        <ul class="hero__domains mono">
+          <li>Sécurité ICS/OT</li>
+          <li>Tests d'intrusion</li>
+          <li>Recherche de vulnérabilités</li>
+          <li>Ingénierie web sécurisée</li>
+          <li>DevSecOps</li>
+          <li>Chaînes d'attaque automatisées</li>
+        </ul>
+        <div class="hero__counter">
+          <span class="hero__counter-num mono" data-count="27" data-pad="3">000</span>
+          <span class="hero__counter-label mono">vulnérabilités<br/>confirmées &middot; labo ICS</span>
+        </div>
+      </div>
+
+      <div class="news">
+        <div class="news__inner">
+          <span class="news__label mono">À la une :</span>
+          <div class="news__track">
+            <a href="#research">Recherche en sécurité ICS/OT chez Productique Québec &amp; Université de Sherbrooke</a>
+            <a href="#education">Master Erasmus Mundus en cybersécurité &middot; UBS &amp; Université du Luxembourg</a>
+            <a href="#credentials">2e prix &middot; Hackathon Smart Cities Gitex Africa 2024</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- À PROPOS -->
+    <section class="intro section snap" id="about">
+      <div class="container intro__grid">
+        <div class="intro__text">
+          <p class="eyebrow reveal">À propos</p>
+          <h2 class="h2 reveal">Je construis des systèmes.<br/><span class="muted">Puis je trouve où ils cèdent.</span></h2>
+          <p class="lead reveal">Je suis venu à la cybersécurité après des années à concevoir et développer des applications web en production. Ce regard de bâtisseur est mon atout : je trouve et corrige les vulnérabilités en sachant de l'intérieur comment les vrais systèmes sont construits, et où ils cèdent.</p>
+          <div class="intro__record reveal">
+            <span class="mono tag">Bilan</span>
+            <p>Chaque entreprise où j'ai fait un stage m'a proposé un poste à temps plein.</p>
+          </div>
+          <div class="reveal intro__btns">
+            <a href="../assets/Ilias_Rais_CV_FR.pdf" class="btn btn--light magnetic" target="_blank" rel="noopener">Télécharger le CV <span class="btn__arrow">&darr;</span></a>
+            <a href="#experience" class="btn btn--ghost magnetic">Mon expérience</a>
+          </div>
+        </div>
+        <div class="intro__visual reveal">
+          <div class="portrait" id="portrait">
+            <img src="../assets/ilias-640.webp" srcset="../assets/ilias-640.webp 640w, ../assets/ilias.webp 800w" sizes="(max-width: 1000px) 460px, 520px" alt="Portrait d'Ilias Rais" width="800" height="800" loading="lazy" decoding="async" />
+            <div class="portrait__scan" aria-hidden="true"></div>
+            <div class="portrait__hud mono" aria-hidden="true">
+              <span>ID : ILIAS_RAIS</span>
+              <span>RÔLE : SWE / SEC</span>
+              <span class="ok">STATUT : DISPONIBLE 02.2027</span>
+            </div>
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHIFFRES + OUTILS -->
+    <section class="stats section snap" id="numbers">
+      <div class="container">
+        <h2 class="h2 center reveal">D'innombrables audits,<br/><span class="muted">une vision claire</span></h2>
+        <div class="stats__grid">
+          <div class="stat reveal">
+            <h3 class="stat__num"><span data-count="27">0</span></h3>
+            <p>Vulnérabilités confirmées avec PoC fonctionnelle sur cinq systèmes ICS/OT</p>
+          </div>
+          <div class="stat reveal">
+            <h3 class="stat__num"><span data-count="12">0</span>+</h3>
+            <p>Vulnérabilités corrigées lors de l'audit d'un framework en production (XSS, CSRF, dépendances)</p>
+          </div>
+          <div class="stat reveal">
+            <h3 class="stat__num"><span data-count="100">0</span>+</h3>
+            <p>Pages de rapports de tests d'intrusion pour équipes techniques et métiers</p>
+          </div>
+          <div class="stat reveal">
+            <h3 class="stat__num"><span data-count="0">0</span></h3>
+            <p>Faux positif pour mon vérificateur de cohérence multi-couches</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="marquee" aria-label="Outils et technologies">
+        <div class="marquee__row">
+          <div class="marquee__track">
+            <span>Burp Suite</span><span>Metasploit</span><span>Nmap</span><span>Wireshark</span><span>OWASP ZAP</span><span>Caldera</span><span>Nikto</span><span>Gobuster</span><span>Wapiti</span><span>Tcpdump</span><span>Kali Linux</span><span>MITRE ATT&amp;CK</span>
+            <span>Burp Suite</span><span>Metasploit</span><span>Nmap</span><span>Wireshark</span><span>OWASP ZAP</span><span>Caldera</span><span>Nikto</span><span>Gobuster</span><span>Wapiti</span><span>Tcpdump</span><span>Kali Linux</span><span>MITRE ATT&amp;CK</span>
+          </div>
+        </div>
+        <div class="marquee__row marquee__row--rev">
+          <div class="marquee__track">
+            <span>OpenPLC</span><span>Ignition SCADA</span><span>Node-RED</span><span>Eclipse Ditto</span><span>Docker</span><span>Kubernetes</span><span>FastAPI</span><span>React</span><span>Next.js</span><span>Laravel</span><span>Python</span><span>Modbus</span><span>OPC-UA</span>
+            <span>OpenPLC</span><span>Ignition SCADA</span><span>Node-RED</span><span>Eclipse Ditto</span><span>Docker</span><span>Kubernetes</span><span>FastAPI</span><span>React</span><span>Next.js</span><span>Laravel</span><span>Python</span><span>Modbus</span><span>OPC-UA</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERTISE -->
+    <section class="expertise section snap" id="expertise">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Expertise</p>
+          <h2 class="h2 reveal">Tout ce dont votre sécurité a besoin.<br/><span class="muted">Du PLC au navigateur.</span></h2>
+        </div>
+        <div class="cards">
+          <article class="card reveal">
+            <div class="card__icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4M7 8h3M7 11h5M15 8v4"/></svg></div>
+            <h3>Sécurité<br/>ICS / OT</h3>
+            <p>Sécurité des PLC, SCADA et IHM, jumeaux numériques et protocoles industriels (Modbus, OPC-UA). MITRE ATT&amp;CK for ICS.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div>
+            <h3>Sécurité<br/>offensive</h3>
+            <p>Recherche de vulnérabilités, revue de code source, tests d'intrusion et émulation d'adversaire avec Caldera. Joueur CTF actif.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <h3>Ingénierie web<br/>sécurisée</h3>
+            <p>Développement full-stack avec Next.js, React, Laravel, Drupal et Node.js, protégé contre le Top 10 OWASP dès le premier jour.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M4 7h10a3 3 0 010 6H8a3 3 0 000 6h12"/><circle cx="4" cy="7" r="1.5"/><circle cx="20" cy="19" r="1.5"/></svg></div>
+            <h3>DevSecOps &amp;<br/>automatisation</h3>
+            <p>Docker, Compose, Kubernetes, pipelines CI/CD et chaînes d'attaque automatisées, reproductibles à partir d'un seul fichier.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="12" cy="12" r="2"/><path d="M7 12h3M14 12l3.5-5.5M14 12l3.5 5.5"/></svg></div>
+            <h3>Réseaux<br/>&amp; SDN</h3>
+            <p>Fondamentaux TCP/IP et OSI, réseaux définis par logiciel sécurisés avec Mininet et ONOS.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+            <h3>Risque &amp;<br/>méthodologie</h3>
+            <p>Analyse de risque EBIOS RM, cartographie MITRE ATT&amp;CK et méthodologie de test OWASP, traduites en rapports clairs.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECHERCHE : LABO ICS -->
+    <section class="research section snap" id="research">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Recherche phare &middot; 2026</p>
+          <h2 class="h2 reveal">Fiable à chaque couche.<br/><span class="muted">Un réseau industriel, attaqué puis défendu.</span></h2>
+          <p class="lead reveal">Chez Productique Québec &amp; l'Université de Sherbrooke, j'ai construit un laboratoire de sécurité ICS/OT entièrement conteneurisé, je l'ai attaqué de bout en bout, puis j'ai conçu un vérificateur qui détecte la manipulation de procédé en temps réel.</p>
+        </div>
+
+        <div class="lab reveal" id="lab">
+          <div class="lab__header mono">
+            <span><i class="dot dot--red"></i><i class="dot dot--amber"></i><i class="dot dot--green"></i></span>
+            <span>docker compose up &middot; ics-lab</span>
+            <span class="lab__status" id="labStatus">MONITORING</span>
+          </div>
+          <div class="lab__body">
+            <svg class="lab__svg" viewBox="0 0 900 420" id="labSvg" role="img" aria-label="Schéma du labo ICS : Node-RED, OpenPLC, Ignition SCADA, jumeau numérique Eclipse Ditto et historien MSSQL, surveillés par le vérificateur de cohérence multi-couches">
+              <g class="links">
+                <path id="l1" d="M150 110 H330" />
+                <path id="l2" d="M450 110 H630" />
+                <path id="l3" d="M390 150 V260" />
+                <path id="l4" d="M690 150 V260" />
+                <path id="l5" d="M450 300 H630" />
+                <path id="v1" class="vlink" d="M390 150 C 390 200, 160 220, 160 300" />
+                <path id="v2" class="vlink" d="M690 300 C 690 360, 260 380, 230 340" />
+                <path id="v3" class="vlink" d="M390 300 C 340 330, 270 330, 240 320" />
+              </g>
+              <g class="node" transform="translate(30,70)"><rect width="120" height="80" rx="12"/><text x="60" y="36">Node-RED</text><text class="sub" x="60" y="56">simulation</text></g>
+              <g class="node" id="nPLC" transform="translate(330,70)"><rect width="120" height="80" rx="12"/><text x="60" y="36">OpenPLC</text><text class="sub" x="60" y="56">Modbus/TCP</text></g>
+              <g class="node" transform="translate(630,70)"><rect width="120" height="80" rx="12"/><text x="60" y="36">Ignition</text><text class="sub" x="60" y="56">SCADA / IHM</text></g>
+              <g class="node" id="nTwin" transform="translate(330,260)"><rect width="120" height="80" rx="12"/><text x="60" y="36">Eclipse Ditto</text><text class="sub" x="60" y="56">jumeau numérique</text></g>
+              <g class="node" id="nHist" transform="translate(630,260)"><rect width="120" height="80" rx="12"/><text x="60" y="36">MSSQL</text><text class="sub" x="60" y="56">historien</text></g>
+              <g class="node node--verifier" id="nVer" transform="translate(60,290)"><rect width="180" height="80" rx="12"/><text x="90" y="34">Vérificateur</text><text class="sub" x="90" y="54">FastAPI + React</text></g>
+              <g class="node node--attacker" id="nAtk" transform="translate(790,175)"><rect width="90" height="56" rx="10"/><text x="45" y="26">Caldera</text><text class="sub" x="45" y="43">adversaire</text></g>
+              <path id="atkPath" class="atklink" d="M790 203 C 600 203, 520 200, 450 120" />
+              <g id="packets"></g>
+            </svg>
+            <div class="lab__log mono" id="labLog" aria-live="off"></div>
+          </div>
+          <div class="lab__facts">
+            <div><strong>5</strong><span>systèmes audités</span></div>
+            <div><strong>27</strong><span>vulnérabilités avec PoC</span></div>
+            <div><strong>7</strong><span>chaînes d'attaque automatisées, mappées sur ATT&amp;CK for ICS</span></div>
+            <div><strong>5 / 6</strong><span>attaques détectées en 10 à 20 s, zéro faux positif</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPÉRIENCE -->
+    <section class="experience section snap" id="experience">
+      <div class="container exp__grid">
+        <div class="exp__head">
+          <p class="eyebrow reveal">Expérience</p>
+          <h2 class="h2 reveal">Chaque étape<br/>du parcours.</h2>
+          <p class="muted reveal">Du développement full-stack à la recherche en sécurité industrielle, chaque poste s'appuie sur le précédent.</p>
+          <div class="exp__progress" aria-hidden="true"><i id="expProgress"></i></div>
+        </div>
+        <ol class="timeline stack" id="timeline">
+          <li class="job stack-card">
+            <div class="job__meta mono"><span class="job__stage">Étape 03 &middot; Recherche</span><span>Mai 2026 &rarr; juin 2026 &middot; Sherbrooke, QC, Canada</span></div>
+            <h3>Productique Québec &amp; Université de Sherbrooke</h3>
+            <p class="job__role">Chercheur en cybersécurité ICS/OT &middot; Stage</p>
+            <ul>
+              <li>Conception et déploiement d'un <b>laboratoire de sécurité ICS/OT</b> entièrement conteneurisé avec Docker &amp; Docker Compose (OpenPLC, Ignition SCADA, Node-RED, jumeau numérique Eclipse Ditto, historien MSSQL) : un réseau industriel réaliste, reproductible à partir d'un seul fichier Compose.</li>
+              <li>Audit de chaque composant et confirmation de <b>27 vulnérabilités</b> sur cinq systèmes, chacune avec une preuve de concept fonctionnelle, dont des failles XSS stockées inédites dans OpenPLC.</li>
+              <li>Création de <b>7 chaînes d'attaque automatisées</b> avec Caldera, chacune mappée de bout en bout sur <b>MITRE ATT&amp;CK for ICS</b>.</li>
+              <li>Conception d'un <b>vérificateur de cohérence multi-couches</b> (FastAPI + React) qui croise en temps réel PLC, jumeau numérique et historien, et détecte 5 attaques de manipulation de procédé sur 6 en 10 à 20 s, sans aucun faux positif.</li>
+            </ul>
+            <div class="chips"><span>Docker</span><span>OpenPLC</span><span>Caldera</span><span>MITRE ATT&amp;CK ICS</span><span>FastAPI</span><span>React</span></div>
+          </li>
+          <li class="job stack-card">
+            <div class="job__meta mono"><span class="job__stage">Étape 02 &middot; Construire &amp; durcir</span><span>Févr. 2025 &rarr; juil. 2025 &middot; Casablanca, MA</span></div>
+            <h3>VOID</h3>
+            <p class="job__role">Ingénieur full-stack &middot; Stage de fin d'études</p>
+            <ul>
+              <li>Audit de sécurité du framework Vactory : identification et correction de <b>plus de 12 vulnérabilités</b> (XSS, CSRF, dépendances obsolètes), renforçant la conformité <b>OWASP</b> des applications en production.</li>
+              <li>Mise en place d'un <b>pipeline CI/CD</b> automatisé (Bitbucket Pipelines, Docker, EasyPanel) et d'une plateforme headless de gestion des stagiaires (Drupal découplé, React/Next.js), ramenant le déploiement à des <b>mises en production automatisées de 15 minutes</b>.</li>
+            </ul>
+            <div class="chips"><span>OWASP</span><span>Drupal</span><span>Next.js</span><span>Docker</span><span>CI/CD</span></div>
+          </li>
+          <li class="job stack-card">
+            <div class="job__meta mono"><span class="job__stage">Étape 01 &middot; Reconnaissance &amp; exploitation</span><span>Mars 2024 &rarr; juil. 2024 &middot; Casablanca, MA</span></div>
+            <h3>Naoris Consulting</h3>
+            <p class="job__role">Développeur cybersécurité &amp; full-stack &middot; Stage</p>
+            <ul>
+              <li>Développement d'un framework de pentest automatisé intégrant une <b>analyse pilotée par LLM</b> avec Wapiti, Nikto, Netcat et Tcpdump pour accélérer la détection des vulnérabilités et la génération de rapports.</li>
+              <li>Évaluations de vulnérabilités d'applications web (injection SQL, contournements d'authentification, mauvaises configurations) selon la méthodologie de test <b>OWASP</b>.</li>
+              <li>Rédaction de rapports de tests d'intrusion détaillés (<b>plus de 100 pages</b>) pour les équipes techniques comme pour les décideurs non techniques.</li>
+            </ul>
+            <div class="chips"><span>Pentest</span><span>LLM</span><span>Nikto</span><span>Wapiti</span><span>Rapports</span></div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- PROJETS -->
+    <section class="projects section snap" id="projects">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Projets</p>
+          <h2 class="h2 reveal">Pensé pour les équipes qui<br/><span class="muted">ne peuvent pas se permettre une faille.</span></h2>
+        </div>
+        <div class="proj__grid">
+          <article class="proj reveal">
+            <div class="proj__visual proj__visual--term" aria-hidden="true">
+              <pre class="mono"><span class="c">$</span> scan <span class="d">target=</span>app.example <span class="d">mode=</span>full
+<span class="d">[+] wapiti   ........ 4 findings</span>
+<span class="d">[+] nikto    ........ 7 findings</span>
+<span class="w">[!] SQLi     /login?id=  HIGH</span>
+<span class="d">[+] report   ........ generated.pdf</span></pre>
+            </div>
+            <div class="proj__body">
+              <span class="mono tag">Outillage sécurité</span>
+              <h3>Plateforme de pentest automatisée</h3>
+              <p>Intègre des outils de sécurité open source pour scanner les vulnérabilités et générer des rapports de sécurité détaillés sur les cibles analysées.</p>
+            </div>
+          </article>
+          <article class="proj reveal">
+            <div class="proj__visual proj__visual--pods" aria-hidden="true">
+              <div class="pods"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="proj__body">
+              <span class="mono tag">Cloud-native</span>
+              <h3>Plateforme de gestion de tâches en microservices</h3>
+              <p>Microservices avec un backend Laravel et un frontend Next.js + ShadCN, déployés avec Docker, GitHub Actions et Kubernetes (Minikube) pour la scalabilité.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- POURQUOI MOI -->
+    <section class="why section snap" id="why">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Pourquoi travailler avec moi</p>
+          <h2 class="h2 reveal">Un bâtisseur qui a appris à casser.<br/><span class="muted">C'est là ma force.</span></h2>
+        </div>
+        <div class="stack why__stack">
+          <article class="why-card stack-card">
+            <span class="why-card__index mono">01</span>
+            <div class="why-card__main">
+              <p class="why-card__kicker mono">Bâtisseur d'abord</p>
+              <h3>J'ai conçu et livré des produits avant de les attaquer.</h3>
+              <p>Design UX/UI, puis développement full-stack, puis cybersécurité. Certifié Google UX Design et Meta Front-End, j'ai mis en production des applications Next.js, Laravel et Drupal. Je sais donc où les vraies équipes prennent des raccourcis, et comment corriger sans casser le produit.</p>
+            </div>
+            <div class="why-card__proof"><strong>3</strong><span>disciplines : UX, full-stack, sécurité</span></div>
+          </article>
+          <article class="why-card stack-card">
+            <span class="why-card__index mono">02</span>
+            <div class="why-card__main">
+              <p class="why-card__kicker mono">Rigueur d'ingénieur</p>
+              <h3>Un diplôme d'ingénieur, puis un Master très sélectif.</h3>
+              <p>Cinq ans à l'ENSAM Casablanca, diplômé ingénieur logiciel en IA &amp; informatique dans le top 10 % de ma promotion. Puis sélectionné pour Erasmus Mundus CYBERUS, un Master conjoint en cybersécurité entre l'Université Bretagne Sud et l'Université du Luxembourg.</p>
+            </div>
+            <div class="why-card__proof"><strong>Top 10 %</strong><span>promotion d'ingénieurs, ENSAM</span></div>
+          </article>
+          <article class="why-card stack-card">
+            <span class="why-card__index mono">03</span>
+            <div class="why-card__main">
+              <p class="why-card__kicker mono">International par nature</p>
+              <h3>Quatre pays. Trois langues. La même exigence.</h3>
+              <p>J'ai travaillé et étudié au Maroc, au Canada, en France et au Luxembourg, en entreprise comme en recherche. Je travaille couramment en anglais (C1), en français (B2) et en arabe (langue maternelle), et je suis à l'aise dans des équipes transverses et multiculturelles.</p>
+            </div>
+            <div class="why-card__proof"><strong>4</strong><span>pays où j'ai travaillé et étudié</span></div>
+          </article>
+          <article class="why-card stack-card">
+            <span class="why-card__index mono">04</span>
+            <div class="why-card__main">
+              <p class="why-card__kicker mono">Des preuves, pas du bruit</p>
+              <h3>Chaque faille est livrée avec un exploit fonctionnel.</h3>
+              <p>27 vulnérabilités confirmées sur cinq systèmes ICS/OT, chacune avec sa preuve de concept, dont des failles XSS stockées inédites dans OpenPLC. Toutes mappées sur MITRE ATT&amp;CK et OWASP pour que votre équipe puisse agir immédiatement.</p>
+            </div>
+            <div class="why-card__proof"><strong>27</strong><span>vulnérabilités avec PoC</span></div>
+          </article>
+          <article class="why-card stack-card">
+            <span class="why-card__index mono">05</span>
+            <div class="why-card__main">
+              <p class="why-card__kicker mono">Rappelé à chaque fois</p>
+              <h3>Chaque entreprise où j'ai fait un stage m'a proposé un poste à temps plein.</h3>
+              <p>Naoris Consulting, VOID et Productique Québec : trois équipes très différentes, en conseil, en produit et en recherche, sur deux continents. Chacune m'a demandé de rester.</p>
+            </div>
+            <div class="why-card__proof"><strong>3 / 3</strong><span>stages conclus par une offre</span></div>
+          </article>
+          <article class="why-card stack-card">
+            <span class="why-card__index mono">06</span>
+            <div class="why-card__main">
+              <p class="why-card__kicker mono">Communicant clair</p>
+              <h3>J'explique le risque aussi bien que je le trouve.</h3>
+              <p>Des rapports de tests d'intrusion de plus de 100 pages, pour ingénieurs comme pour dirigeants. Responsable des formations web au GDG On Campus, formateur en club, et lauréat de trois prix de hackathon où le pitch comptait autant que le code.</p>
+            </div>
+            <div class="why-card__proof"><strong>3</strong><span>prix de hackathon, dont deux 1ers prix</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- AFFIRMATION VÉRIFIÉE -->
+    <section class="claim" id="claim" aria-label="Bilan">
+      <div class="claim__sticky">
+        <div class="claim__hash mono" aria-hidden="true"></div>
+        <div class="container claim__inner">
+          <p class="eyebrow claim__eyebrow">Bilan &middot; <b id="claimStatus" data-wait="vérification en cours" data-ok="affirmation vérifiée">vérification en cours</b></p>
+          <blockquote class="claim__quote" id="claimQuote">Chaque entreprise où j'ai fait un stage m'a proposé un poste à temps plein.</blockquote>
+          <div class="claim__sigs">
+            <div class="sig" data-at="0.52">
+              <span class="sig__icon"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7"/></svg></span>
+              <div><b>Naoris Consulting</b><span class="sig__state mono" data-wait="en attente de signature" data-pending="vérification de la signature" data-ok="offre signée &middot; 2024">en attente de signature</span></div>
+            </div>
+            <div class="sig" data-at="0.64">
+              <span class="sig__icon"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7"/></svg></span>
+              <div><b>VOID</b><span class="sig__state mono" data-wait="en attente de signature" data-pending="vérification de la signature" data-ok="offre signée &middot; 2025">en attente de signature</span></div>
+            </div>
+            <div class="sig" data-at="0.76">
+              <span class="sig__icon"><svg viewBox="0 0 16 16"><path d="M3 8.5l3 3 7-7"/></svg></span>
+              <div><b>Productique Québec</b><span class="sig__state mono" data-wait="en attente de signature" data-pending="vérification de la signature" data-ok="offre signée &middot; 2026">en attente de signature</span></div>
+            </div>
+          </div>
+          <div class="claim__progress mono" aria-hidden="true"><span>sha-256</span><span class="bar"><i id="claimBar"></i></span><span class="claim__pct" id="claimPct">0%</span></div>
+          <div class="claim__stamp mono" aria-hidden="true"><span>VÉRIFIÉ</span><small>3 / 3 signatures valides</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERTIFICATIONS -->
+    <section class="credentials section snap" id="credentials">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Certifications</p>
+          <h2 class="h2 reveal">Reconnu, testé,<br/><span class="muted">certifié.</span></h2>
+        </div>
+
+        <h3 class="sub-title mono reveal">// Prix</h3>
+        <div class="awards">
+          <div class="award reveal"><span class="award__rank">2e</span><div><h4>Gitex Africa 2024</h4><p>Hackathon Smart Cities</p></div></div>
+          <div class="award reveal"><span class="award__rank">1er</span><div><h4>International Smart Cities Hackathon</h4><p>Martil</p></div></div>
+          <div class="award reveal"><span class="award__rank">1er</span><div><h4>DevJam v2.0</h4><p>ENSIAS IT Club</p></div></div>
+        </div>
+
+        <h3 class="sub-title mono reveal">// Certificats</h3>
+        <div class="certs">
+          <div class="cert reveal"><span class="cert__org">TryHackMe</span><span>Junior Penetration Tester</span></div>
+          <div class="cert reveal"><span class="cert__org">CLLMSP</span><span>Certified LLM Security Professional</span></div>
+          <div class="cert reveal"><span class="cert__org">Google</span><span>Cybersecurity Professional &middot; 9 cours</span></div>
+          <div class="cert reveal"><span class="cert__org">Cisco</span><span>Ethical Hacker</span></div>
+          <div class="cert reveal"><span class="cert__org">Cisco</span><span>Linux Essentials</span></div>
+          <div class="cert reveal"><span class="cert__org">Google</span><span>UX Design Professional &middot; 7 cours</span></div>
+          <div class="cert reveal"><span class="cert__org">Meta</span><span>Front-End Developer Professional &middot; 9 cours</span></div>
+          <div class="cert reveal"><span class="cert__org">IBM</span><span>Agile &amp; Scrum Foundations &middot; 3 modules</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMATION -->
+    <section class="education section snap" id="education">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Formation</p>
+          <h2 class="h2 reveal">Ce qui fait avancer<br/><span class="muted">mon apprentissage.</span></h2>
+        </div>
+        <div class="edu__grid">
+          <article class="edu reveal">
+            <div class="edu__meta mono">Lorient, FR &middot; Luxembourg <span>Sept. 2025 &rarr; aujourd'hui</span></div>
+            <span class="edu__badge mono">Erasmus Mundus &middot; CYBERUS</span>
+            <h3>Master en cybersécurité</h3>
+            <p>Université Bretagne Sud (UBS) &amp; Université du Luxembourg (UL). Parcours Sécurité logicielle.</p>
+          </article>
+          <article class="edu reveal">
+            <div class="edu__meta mono">Casablanca, MA <span>Sept. 2020 &rarr; juil. 2025</span></div>
+            <span class="edu__badge mono">ENSAM &middot; Top 10 %</span>
+            <h3>Diplôme d'ingénieur logiciel</h3>
+            <p>École Supérieure Nationale d'Arts et Métiers (ENSAM). Intelligence artificielle &amp; informatique.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq section snap" id="faq">
+      <div class="container faq__grid">
+        <div>
+          <p class="eyebrow reveal">FAQ</p>
+          <h2 class="h2 reveal">Des réponses claires,<br/><span class="muted">pour avancer sereinement.</span></h2>
+          <a href="mailto:ivarrais2001@gmail.com" class="btn btn--ghost reveal magnetic">M'écrire</a>
+        </div>
+        <div class="accordion" id="accordion">
+          <details class="acc reveal" open>
+            <summary>Quand êtes-vous disponible&nbsp;?</summary>
+            <div class="acc__body"><p>Je suis disponible pour un stage de 6 mois à partir de février 2027, dans le cadre de mon Master Erasmus Mundus CYBERUS.</p></div>
+          </details>
+          <details class="acc reveal">
+            <summary>Quels types de postes recherchez-vous&nbsp;?</summary>
+            <div class="acc__body"><p>Tests d'intrusion, recherche en sécurité ICS/OT, sécurité applicative et ingénierie logicielle sécurisée. Partout où construire et casser se rencontrent.</p></div>
+          </details>
+          <details class="acc reveal">
+            <summary>Quelles langues parlez-vous&nbsp;?</summary>
+            <div class="acc__body"><p>Anglais (C1, maîtrise professionnelle complète), français (B2, maîtrise professionnelle) et arabe (langue maternelle).</p></div>
+          </details>
+          <details class="acc reveal">
+            <summary>Où êtes-vous basé&nbsp;?</summary>
+            <div class="acc__body"><p>Je suis actuellement en France, entre Lorient et le Luxembourg pour mes études. Mes expériences précédentes se sont déroulées au Maroc et au Canada.</p></div>
+          </details>
+          <details class="acc reveal">
+            <summary>Faites-vous des CTF&nbsp;?</summary>
+            <div class="acc__body"><p>Oui. Je joue activement aux CTF et je suis certifié TryHackMe Junior Penetration Tester.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="cta section snap" id="contact">
+      <div class="cta__glow" aria-hidden="true"></div>
+      <div class="container center">
+        <p class="eyebrow reveal">Contact</p>
+        <h2 class="cta__title reveal">Prêt à sécuriser<br/>ce que vous construisez&nbsp;?</h2>
+        <p class="lead reveal">Parlons de votre prochain stage, projet de recherche ou défi de sécurité.</p>
+        <div class="hero__ctas center reveal">
+          <a href="mailto:ivarrais2001@gmail.com" class="btn btn--light magnetic">ivarrais2001@gmail.com</a>
+          <a href="https://linkedin.com/in/ilias-rais" class="btn btn--ghost magnetic" target="_blank" rel="noopener">Me suivre sur LinkedIn</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- PIED DE PAGE -->
+  <footer class="footer snap-end">
+    <div class="container">
+      <p class="footer__big">Ingénieur de formation.<br/><span class="muted">Cybersécurité par passion.</span></p>
+      <div class="footer__cols">
+        <div>
+          <h4 class="mono">Navigation</h4>
+          <a href="#about">À propos</a><a href="#expertise">Expertise</a><a href="#research">Recherche</a><a href="#experience">Expérience</a><a href="#projects">Projets</a><a href="#credentials">Certifications</a>
+        </div>
+        <div>
+          <h4 class="mono">Contact</h4>
+          <a href="mailto:ivarrais2001@gmail.com">E-mail</a>
+          <a href="https://linkedin.com/in/ilias-rais" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://github.com/artfull-boy" target="_blank" rel="noopener">GitHub</a>
+          <a href="../assets/Ilias_Rais_CV_FR.pdf" target="_blank" rel="noopener">CV (PDF)</a>
+        </div>
+        <div>
+          <h4 class="mono">Basé à</h4>
+          <p>France &middot; Lorient / Luxembourg</p>
+          <p class="mono footer__time">Heure locale <span id="localTime">00:00</span></p>
+        </div>
+      </div>
+      <div class="footer__bottom mono">
+        <span>&copy; <span id="year">2026</span> Ilias Rais</span>
+        <span>Conçu &amp; développé à la main &middot; sans traceurs</span>
+        <a href="#top">Retour en haut &uarr;</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>
