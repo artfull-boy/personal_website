@@ -37,6 +37,7 @@
   <meta name="twitter:image:alt" content="Engineer by training, cybersecurity by passion. Ilias Rais." />
 
   <meta name="theme-color" content="#07080a" />
+  <script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}</script>
   <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32" />
@@ -63,8 +64,7 @@
     "sameAs": ["https://linkedin.com/in/ilias-rais", "https://github.com/artfull-boy"]
   }
   </script>
-  <link rel="stylesheet" href="styles.css?v=7" />
-  <link rel="expect" href="#site-end" blocking="render" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
 
@@ -97,6 +97,13 @@
       <span class="nav__name">Ilias Rais</span>
     </a>
     <div class="nav__right">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light mode" data-to-light="Switch to light mode" data-to-dark="Switch to dark mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <mask id="ttMask"><rect x="-4" y="-4" width="32" height="32" fill="#fff"/><circle class="tt-cut" cx="12" cy="12" r="7" fill="#000"/></mask>
+          <circle class="tt-core" cx="12" cy="12" r="5" fill="currentColor" mask="url(#ttMask)"/>
+          <g class="tt-rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.2M12 20.3v2.2M1.5 12h2.2M20.3 12h2.2M4.6 4.6l1.5 1.5M17.9 17.9l1.5 1.5M4.6 19.4l1.5-1.5M17.9 6.1l1.5-1.5"/></g>
+        </svg>
+      </button>
       <div class="lang mono" aria-label="Language">
         <a href="./" class="lang__opt is-active" hreflang="en" lang="en" aria-current="page">EN</a>
         <a href="fr/" class="lang__opt" hreflang="fr" lang="fr">FR</a>
@@ -662,8 +669,7 @@
     </div>
   </footer>
 
-  <script src="script.js?v=7"></script>
-  <div id="site-end" hidden></div>
+  <script src="script.js?v=8"></script>
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>

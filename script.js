@@ -9,78 +9,191 @@
   body.classList.add("is-loading");
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   const toTop = () => window.scrollTo({ top: 0, behavior: "instant" });
+  toTop();
+  window.addEventListener("load", () => { if (!location.hash) toTop(); });
 
-  // Language wave: arriving from the language switch keeps the visitor on the
-  // same section and reveals this page as a wave spreading from the toggle.
-  let wave = null;
-  try {
-    wave = JSON.parse(sessionStorage.getItem("langWave") || "null");
-    sessionStorage.removeItem("langWave");
-  } catch (e) {}
-  if (wave && Date.now() - wave.t > 8000) wave = null;
-  if (wave) {
-    const sec = wave.section && document.getElementById(wave.section);
-    const y = sec ? sec.getBoundingClientRect().top + window.scrollY + wave.offset : 0;
-    // scroll snap would pull us back to the section start, so pause it until the wave is done
-    document.documentElement.style.scrollSnapType = "none";
-    window.scrollTo({ top: Math.max(0, y), behavior: "instant" });
-    setTimeout(() => { document.documentElement.style.scrollSnapType = ""; }, 2500);
-  } else toTop();
-  window.addEventListener("load", () => { if (!location.hash && !wave) toTop(); });
+  /* ---------- Language switch: the other language spreads across the page as a wave ----------
+     Both pages share the same markup, so instead of loading a new page we fetch the other
+     language once and swap each piece of text in place when the wave reaches it. The page
+     stays fully interactive, nothing reloads, and open menus or running animations carry on. */
+  const html = document.documentElement;
+  const ink = {};
+  const staticEls = [...body.querySelectorAll("*")];
+  const directTexts = (el) => [...el.childNodes].filter((n) => n.nodeType === 3);
+  let origText = staticEls.map((el) => directTexts(el).map((n) => n.nodeValue));
+  const SKIP_ATTR = new Set(["class", "style", "id", "hidden", "tabindex", "aria-pressed", "aria-expanded", "aria-hidden", "aria-current"]);
+  const isRel = (v) => v && !/^(#|[a-z][a-z0-9+.-]*:|\/\/)/i.test(v);
+  const absUrl = (v, base) => (isRel(v) ? new URL(v, base).href : v);
+  const absSet = (v, base) => v.split(",").map((s) => { const [u, ...d] = s.trim().split(/\s+/); return [absUrl(u, base), ...d].join(" "); }).join(", ");
+  const docs = new Map();
+  const getDoc = (url) => {
+    if (!docs.has(url)) {
+      docs.set(url, fetch(url, { credentials: "same-origin" })
+        .then((r) => (r.ok ? r.text() : Promise.reject(r.status)))
+        .then((t) => new DOMParser().parseFromString(t, "text/html"))
+        .catch((e) => { docs.delete(url); throw e; }));
+    }
+    return docs.get(url);
+  };
+  const otherLink = () => $(".lang__opt:not(.is-active)");
+  const prefetchLang = () => { const a = otherLink(); if (a) getDoc(a.href).catch(() => {}); };
+  window.addEventListener("load", () => setTimeout(() => (window.requestIdleCallback || setTimeout)(prefetchLang), 2500));
+  $$(".lang").forEach((l) => ["pointerenter", "focusin", "touchstart"].forEach((t) => l.addEventListener(t, prefetchLang, { passive: true })));
 
-  window.addEventListener("pagereveal", (e) => {
-    if (!e.viewTransition) return;
-    e.viewTransition.ready.catch(() => {});
-    e.viewTransition.finished.catch(() => {});
-    if (!wave || reduced) { e.viewTransition.skipTransition(); return; }
-    const { x, y } = wave;
-    const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 40;
-    const D = 1250, E = "cubic-bezier(0.6, 0, 0.25, 1)";
-    const rings = [0, 140].map((delay, i) => {
-      const el = document.createElement("div");
-      el.className = "lang-wave" + (i ? " trail" : "");
-      el.style.left = x + "px"; el.style.top = y + "px";
-      el.style.width = el.style.height = "0px";
-      document.body.appendChild(el);
-      return { el, delay };
-    });
-    e.viewTransition.ready.then(() => {
-      document.documentElement.animate(
-        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${R}px at ${x}px ${y}px)`] },
-        { duration: D, easing: E, pseudoElement: "::view-transition-new(root)" }
-      );
-      rings.forEach(({ el, delay }) => {
-        el.animate(
-          [
-            { width: "0px", height: "0px", opacity: 1 },
-            { width: 1.4 * R + "px", height: 1.4 * R + "px", opacity: 1, offset: 0.7 },
-            { width: 2 * R + "px", height: 2 * R + "px", opacity: 0 },
-          ],
-          { duration: D, delay, easing: E, fill: "both" }
-        ).finished.then(() => el.remove());
+  let absolutized = false;
+  let swapping = false;
+  async function switchLang(lang, origin, push) {
+    if (swapping || lang === html.lang) return;
+    const link = $(`.lang__opt[hreflang="${lang}"]`);
+    if (!link) return;
+    const url = link.href;
+    swapping = true;
+    let doc;
+    try { doc = await getDoc(url); } catch (e) { location.href = url; return; }
+    const els = [...doc.body.querySelectorAll("*")];
+    // the two pages must share their structure, otherwise fall back to a normal page load
+    if (els.length < staticEls.length || staticEls.some((el, i) => el.tagName !== els[i].tagName)) { location.href = url; return; }
+
+    // relative links and images must keep pointing to the same files once the address changes
+    if (!absolutized) {
+      absolutized = true;
+      const base = location.href;
+      $$("[href], [src], [srcset]").forEach((el) => {
+        ["href", "src"].forEach((k) => { const v = el.getAttribute(k); if (isRel(v)) el.setAttribute(k, absUrl(v, base)); });
+        const s = el.getAttribute("srcset");
+        if (s && s.split(",").some((p) => isRel(p.trim().split(/\s+/)[0]))) el.setAttribute("srcset", absSet(s, base));
       });
-    }).catch(() => rings.forEach(({ el }) => el.remove()));
-  });
+    }
 
-  // Leaving through the language switch: remember where the wave starts and
-  // which section the visitor is reading, so the other language opens there.
+    // the toggle and the address change right away; the content follows the wave
+    $$(".lang__opt").forEach((o) => {
+      const on = o.getAttribute("hreflang") === lang;
+      o.classList.toggle("is-active", on);
+      if (on) o.setAttribute("aria-current", "page"); else o.removeAttribute("aria-current");
+    });
+    if (push) history.pushState({ lang }, "", url);
+
+    const fixedRoots = $$("body > *, body > * > *").filter((el) => getComputedStyle(el).position === "fixed");
+    const sy = window.scrollY;
+    const jobs = [];
+    const nextOrig = [];
+    staticEls.forEach((el, i) => {
+      const nu = els[i];
+      const want = directTexts(nu).map((n) => n.nodeValue);
+      nextOrig[i] = want;
+      const cur = directTexts(el);
+      const text = [];
+      // only text still showing its original wording is translated; text a script is driving is left alone
+      if (cur.length === want.length) cur.forEach((n, k) => { if (n.nodeValue === origText[i][k] && n.nodeValue !== want[k]) text.push([n, want[k]]); });
+      const attrs = [];
+      for (const { name, value } of nu.attributes) {
+        if (SKIP_ATTR.has(name)) continue;
+        const v = name === "href" || name === "src" ? absUrl(value, url) : name === "srcset" ? absSet(value, url) : value;
+        if (el.getAttribute(name) !== v) attrs.push([name, v]);
+      }
+      if (!text.length && !attrs.length) return;
+      const job = { el, text, attrs };
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) job.now = true;
+      else {
+        job.fixed = fixedRoots.some((f) => f.contains(el));
+        job.x = r.left + r.width / 2;
+        job.y = r.top + r.height / 2 + (job.fixed ? 0 : sy);
+      }
+      jobs.push(job);
+    });
+    origText = nextOrig;
+
+    const apply = (j, fade) => {
+      j.text.forEach(([n, v]) => { n.nodeValue = v; });
+      j.attrs.forEach(([k, v]) => j.el.setAttribute(k, v));
+      if (fade && j.text.length && !j.el.closest(".reveal")) {
+        j.el.animate([{ opacity: 0.2, filter: "blur(2px)" }, { opacity: 1, filter: "blur(0)" }], { duration: 420, easing: "ease-out" });
+      }
+    };
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      jobs.forEach((j) => j.done || apply(j, false));
+      html.lang = lang;
+      document.title = doc.title;
+      $$("meta[name], meta[property]", doc.head).forEach((m) => {
+        const key = m.hasAttribute("name") ? `meta[name="${m.getAttribute("name")}"]` : `meta[property="${m.getAttribute("property")}"]`;
+        const mine = $(key, document.head);
+        if (mine) mine.setAttribute("content", m.getAttribute("content"));
+      });
+      const canon = $('link[rel="canonical"]', doc.head);
+      if (canon && $('link[rel="canonical"]')) $('link[rel="canonical"]').href = canon.href;
+      document.dispatchEvent(new CustomEvent("langchange", { detail: { lang, doc } }));
+      swapping = false;
+    };
+    jobs.forEach((j) => { if (j.now) { apply(j, false); j.done = true; } });
+    if (reduced || !origin) { finish(); return; }
+
+    const { x: ox, y: oy } = origin;
+    const R = Math.hypot(Math.max(ox, innerWidth - ox), Math.max(oy, innerHeight - oy)) + 60;
+    const D = 1150;
+    const E = "cubic-bezier(0.55, 0, 0.3, 1)";
+    // same curve as E, so text changes exactly where the ring edge is
+    const ease = (t) => {
+      const x1 = 0.55, x2 = 0.3;
+      let u = t;
+      for (let k = 0; k < 8; k++) {
+        const x = 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u - t;
+        const dx = 3 * (1 - u) * (1 - u) * x1 + 6 * (1 - u) * u * (x2 - x1) + 3 * u * u * (1 - x2);
+        if (Math.abs(x) < 1e-4 || !dx) break;
+        u = Math.min(1, Math.max(0, u - x / dx));
+      }
+      return 3 * (1 - u) * u * u + u * u * u;
+    };
+    [0, 130].forEach((delay, i) => {
+      const ring = document.createElement("div");
+      ring.className = "lang-wave" + (i ? " trail" : "");
+      ring.style.left = ox + "px"; ring.style.top = oy + "px";
+      body.appendChild(ring);
+      ring.animate(
+        [
+          { width: "0px", height: "0px", opacity: 1 },
+          { width: 1.5 * R + "px", height: 1.5 * R + "px", opacity: 1, offset: 0.75 },
+          { width: 2 * R + "px", height: 2 * R + "px", opacity: 0 },
+        ],
+        { duration: D, delay, easing: E, fill: "both" }
+      ).finished.then(() => ring.remove());
+    });
+    const t0 = performance.now();
+    const tick = (now) => {
+      const p = Math.min((now - t0) / D, 1);
+      const rad = R * ease(p);
+      const y0 = window.scrollY;
+      for (const j of jobs) {
+        if (j.done) continue;
+        const dy = j.y - (j.fixed ? 0 : y0) - oy;
+        if (Math.hypot(j.x - ox, dy) <= rad) { apply(j, true); j.done = true; }
+      }
+      if (finished) return;
+      if (p < 1) requestAnimationFrame(tick); else finish();
+    };
+    requestAnimationFrame(tick);
+    // a hidden tab pauses animation frames: make sure the switch still completes
+    setTimeout(finish, D + 400);
+  }
+
   document.addEventListener("click", (e) => {
     const a = e.target.closest && e.target.closest(".lang__opt");
-    if (!a || a.classList.contains("is-active")) return;
-    if (!("onpagereveal" in window)) return;
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+    e.preventDefault();
+    if (a.classList.contains("is-active")) return;
     const r = a.getBoundingClientRect();
-    let section = null, offset = 0;
-    document.querySelectorAll("section[id]").forEach((s) => {
-      const top = s.getBoundingClientRect().top + window.scrollY;
-      if (top <= window.scrollY + 2) { section = s.id; offset = window.scrollY - top; }
-    });
-    try {
-      sessionStorage.setItem("langWave", JSON.stringify({
-        x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2),
-        section, offset: Math.round(offset), t: Date.now(),
-      }));
-    } catch (err) {}
-  }, true);
+    switchLang(a.getAttribute("hreflang"), { x: r.left + r.width / 2, y: r.top + r.height / 2 }, true);
+  });
+  window.addEventListener("popstate", () => {
+    const lang = /\/fr\/?$/.test(location.pathname) ? "fr" : "en";
+    if (lang === html.lang) return;
+    const t = $(`.lang__opt[hreflang="${lang}"]`);
+    const r = t && t.getBoundingClientRect();
+    switchLang(lang, r && { x: r.left + r.width / 2, y: r.top + r.height / 2 }, false);
+  });
 
   /* ---------- Preloader: terminal boot ---------- */
   const fr = document.documentElement.lang === "fr";
@@ -208,23 +321,6 @@
     if (!watchers.has(target)) { watchers.set(target, []); io.observe(target); }
     watchers.get(target).push(el);
   });
-  // Arriving through the language wave: what is on screen is shown already
-  // settled, so the wave uncovers the finished page instead of a blank one.
-  if (wave) {
-    [...watchers.keys()].forEach((t) => {
-      const r = t.getBoundingClientRect();
-      if (r.bottom <= 0 || r.top >= innerHeight) return;
-      watchers.get(t).forEach((el) => {
-        el.style.transition = "none";
-        el.classList.remove("reveal");
-        $$("[data-count]", el).forEach((c) => { c.dataset.done = 1; c.textContent = String(c.dataset.count).padStart(+(c.dataset.pad || 0), "0"); });
-        if (el.classList.contains("stat")) el.parentElement.classList.add("lit");
-        requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ""; el.style.transitionDelay = ""; }));
-      });
-      watchers.delete(t);
-      io.unobserve(t);
-    });
-  }
 
   /* ---------- Nav + menu ---------- */
   const nav = $("#nav");
@@ -291,6 +387,33 @@
     horizon.style.transform = `translateX(-50%) translateY(${y * -0.15}px)`;
   }
 
+  /* ---------- Theme: dark or light, gliding between the two ---------- */
+  const themeBtn = $("#themeToggle");
+  const themeMeta = $('meta[name="theme-color"]');
+  const isLight = () => html.dataset.theme === "light";
+  const syncTheme = () => {
+    const light = isLight();
+    if (themeBtn) themeBtn.setAttribute("aria-label", light ? themeBtn.dataset.toDark : themeBtn.dataset.toLight);
+    if (themeMeta) themeMeta.setAttribute("content", light ? "#f3f5f8" : "#07080a");
+    Object.assign(ink, light
+      ? { line: "44,106,166", hub: "rgba(30,80,135,0.85)", node: "rgba(44,106,166,0.5)", ring: "rgba(44,106,166,0.3)", packet: "44,106,166", k: 1.5 }
+      : { line: "159,195,230", hub: "rgba(220,235,250,0.9)", node: "rgba(159,195,230,0.55)", ring: "rgba(159,195,230,0.25)", packet: "220,240,255", k: 1 });
+  };
+  let themeTimer = 0;
+  if (themeBtn) themeBtn.addEventListener("click", () => {
+    const light = !isLight();
+    if (!reduced) {
+      html.classList.add("theme-anim");
+      clearTimeout(themeTimer);
+      themeTimer = setTimeout(() => html.classList.remove("theme-anim"), 800);
+    }
+    if (light) html.dataset.theme = "light"; else html.removeAttribute("data-theme");
+    try { localStorage.setItem("theme", light ? "light" : "dark"); } catch (e) {}
+    syncTheme();
+  });
+  syncTheme();
+  document.addEventListener("langchange", syncTheme);
+
   const toggle = $("#menuToggle");
   const label = $(".menu-toggle__label");
   const setMenu = (open) => {
@@ -302,6 +425,9 @@
   toggle.addEventListener("click", () => setMenu(!body.classList.contains("menu-open")));
   $$("#menu a").forEach((a) => a.addEventListener("click", () => setMenu(false)));
   document.addEventListener("keydown", (e) => e.key === "Escape" && setMenu(false));
+  document.addEventListener("langchange", () => {
+    label.textContent = body.classList.contains("menu-open") ? label.dataset.close : label.dataset.open;
+  });
 
   /* ---------- Experience progress ---------- */
   const tl = $("#timeline");
@@ -408,13 +534,20 @@
 
   if (claim) {
     // split the quote into words (kept unbroken) and characters
-    const text = claimQuote.textContent.trim();
-    claimQuote.setAttribute("aria-label", text);
-    claimQuote.innerHTML = text
-      .split(" ")
-      .map((w) => `<span class="w" aria-hidden="true">${[...w].map((c) => `<span class="ch">${escapeHtml(c)}</span>`).join("")}</span>`)
-      .join(" ");
-    claimChars = $$(".ch", claimQuote);
+    const splitClaim = (text) => {
+      claimQuote.setAttribute("aria-label", text);
+      claimQuote.innerHTML = text
+        .split(" ")
+        .map((w) => `<span class="w" aria-hidden="true">${[...w].map((c) => `<span class="ch">${escapeHtml(c)}</span>`).join("")}</span>`)
+        .join(" ");
+      claimChars = $$(".ch", claimQuote);
+    };
+    splitClaim(claimQuote.textContent.trim());
+    document.addEventListener("langchange", (e) => {
+      const q = e.detail.doc.getElementById("claimQuote");
+      if (q) splitClaim(q.textContent.trim());
+      if (claimP >= 0) renderClaim(claimP, true);
+    });
 
     // faint background of rolling hashes
     const hash = $(".claim__hash", claim);
@@ -559,7 +692,7 @@
         if (d < LINK) {
           const fade = 1 - d / LINK;
           const yFade = Math.max(0, 1 - ((a.y + b.y) / 2) / (H * 0.95));
-          ctx.strokeStyle = `rgba(159,195,230,${0.16 * fade * (0.4 + yFade)})`;
+          ctx.strokeStyle = `rgba(${ink.line},${0.16 * fade * (0.4 + yFade) * ink.k})`;
           ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
         }
@@ -569,16 +702,16 @@
     for (const n of nodes) {
       const d = Math.hypot(mouse.x - n.x, mouse.y - n.y);
       if (d < 200) {
-        ctx.strokeStyle = `rgba(159,195,230,${0.35 * (1 - d / 200)})`;
+        ctx.strokeStyle = `rgba(${ink.line},${0.35 * (1 - d / 200) * ink.k})`;
         ctx.beginPath(); ctx.moveTo(mouse.x, mouse.y); ctx.lineTo(n.x, n.y); ctx.stroke();
       }
     }
     // nodes
     for (const n of nodes) {
-      ctx.fillStyle = n.hub ? "rgba(220,235,250,0.9)" : "rgba(159,195,230,0.55)";
+      ctx.fillStyle = n.hub ? ink.hub : ink.node;
       ctx.beginPath(); ctx.arc(n.x, n.y, n.hub ? n.r + 1.2 : n.r, 0, Math.PI * 2); ctx.fill();
       if (n.hub) {
-        ctx.strokeStyle = "rgba(159,195,230,0.25)";
+        ctx.strokeStyle = ink.ring;
         ctx.beginPath(); ctx.arc(n.x, n.y, 6, 0, Math.PI * 2); ctx.stroke();
       }
     }
@@ -589,7 +722,7 @@
       p.t += p.speed;
       const x = p.a.x + (p.b.x - p.a.x) * p.t;
       const y = p.a.y + (p.b.y - p.a.y) * p.t;
-      const col = p.hostile ? "255,93,108" : "220,240,255";
+      const col = p.hostile ? "255,93,108" : ink.packet;
       const g = ctx.createRadialGradient(x, y, 0, x, y, 6);
       g.addColorStop(0, `rgba(${col},0.95)`);
       g.addColorStop(1, `rgba(${col},0)`);
@@ -797,10 +930,36 @@
       sec.addEventListener("click", activate);
     });
 
+    const detailHtml = (i) => {
+      const it = items[i];
+      const tools = it.dataset.tools.split(",").map((t, k) => `<span data-k="${k}">${escapeHtml(t.trim())}</span>`).join("");
+      return `
+        <p class="radar__kicker mono">${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")} · ${escapeHtml(it.dataset.short)}</p>
+        <h3>${escapeHtml($(".radar__name", it).textContent)}</h3>
+        <p class="radar__desc-out">${escapeHtml($(".radar__desc", it).textContent)}</p>
+        <div class="chips radar__chips">${tools}</div>`;
+    };
+    // the panel keeps the height of its longest domain, so switching never shifts the section
+    const fitDetail = () => {
+      const probe = detail.cloneNode(false);
+      probe.id = "";
+      probe.className = "radar__detail";
+      Object.assign(probe.style, { position: "absolute", visibility: "hidden", pointerEvents: "none", minHeight: "0", width: detail.offsetWidth + "px", left: "0", top: "0", transition: "none" });
+      detail.parentElement.appendChild(probe);
+      let h = 0;
+      items.forEach((_, i) => { probe.innerHTML = detailHtml(i); h = Math.max(h, probe.offsetHeight); });
+      detail.parentElement.removeChild(probe);
+      detail.style.minHeight = h ? Math.ceil(h) + "px" : "";
+    };
+    let fitRaf = 0;
+    const refit = () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitDetail); };
+    window.addEventListener("resize", refit);
+    if (document.fonts) document.fonts.ready.then(refit);
+
     let active = -1;
     let lastUser = -Infinity;
-    function setActive(i) {
-      if (i === active) return;
+    function setActive(i, force) {
+      if (i === active && !force) return;
       active = i;
       const it = items[i];
       items.forEach((x, k) => x.setAttribute("aria-pressed", k === i));
@@ -811,12 +970,7 @@
       const [x0, y0] = pt(a0, R + 6);
       const [x1, y1] = pt(a1, R + 6);
       arc.setAttribute("d", `M${x0} ${y0} A${R + 6} ${R + 6} 0 0 1 ${x1} ${y1}`);
-      const tools = it.dataset.tools.split(",").map((t, k) => `<span data-k="${k}">${escapeHtml(t.trim())}</span>`).join("");
-      detail.innerHTML = `
-        <p class="radar__kicker mono">${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")} · ${escapeHtml(it.dataset.short)}</p>
-        <h3>${escapeHtml($(".radar__name", it).textContent)}</h3>
-        <p class="radar__desc-out">${escapeHtml($(".radar__desc", it).textContent)}</p>
-        <div class="chips radar__chips">${tools}</div>`;
+      detail.innerHTML = detailHtml(i);
       // each chip is wired to its dot: it lights up when the beam passes over it
       const chips = $$(".radar__chips span", detail);
       blips.forEach((b) => { b.chip = b.i === i ? chips[b.k] : null; });
@@ -828,6 +982,14 @@
       }
     }
     setActive(0);
+    fitDetail();
+    document.addEventListener("langchange", () => {
+      items.forEach((it, i) => { labelG.children[i].textContent = it.dataset.short; });
+      const tips = $$("title", blipG);
+      items.flatMap((it) => it.dataset.tools.split(",").map((t) => t.trim())).forEach((t, k) => { if (tips[k]) tips[k].textContent = t; });
+      setActive(active, true);
+      fitDetail();
+    });
 
     // beam rotation + radar persistence on blips
     let sweep = 0;
@@ -1026,10 +1188,9 @@
     const cv = box && $(".portrait__fx", box);
     if (!box || !img || !cv) return;
     if (reduced) { cv.remove(); return; }
-    const fr = document.documentElement.lang === "fr";
     const ctx = cv.getContext("2d");
     const hud = $$(".portrait__hud span", box);
-    const hudText = hud.map((s) => s.textContent);
+    let hudText = hud.map((s) => s.textContent);
     const NOISE = "01ABCDEF0123456789#%&$@*+=<>/\\";
     const rnd = (a) => a[(Math.random() * a.length) | 0];
     const RAMP = [" ", " ", ".", ".:", ":-", "=+", "+*1", "7105", "3569", "A4$%", "#8@&"];
@@ -1040,8 +1201,18 @@
     const PTS = [[0.47, 0.2], [0.36, 0.37], [0.6, 0.36], [0.39, 0.43], [0.55, 0.42], [0.48, 0.52],
       [0.42, 0.59], [0.55, 0.58], [0.48, 0.6], [0.48, 0.7], [0.3, 0.5], [0.66, 0.5]];
     const EDGES = [[0, 1], [0, 2], [1, 3], [2, 4], [3, 5], [4, 5], [5, 6], [5, 7], [6, 8], [7, 8], [8, 9], [10, 3], [11, 4], [10, 9], [11, 9], [1, 2]];
-    const LABEL = fr ? "CORRESP. 99,8 % · ID VÉRIFIÉE" : "MATCH 99.8% · ID VERIFIED";
-    const SCANLBL = fr ? "ANALYSE BIOMÉTRIQUE" : "BIOMETRIC SCAN";
+    let LABEL, SCANLBL;
+    const setLabels = () => {
+      const fr = document.documentElement.lang === "fr";
+      LABEL = fr ? "CORRESP. 99,8 % · ID VÉRIFIÉE" : "MATCH 99.8% · ID VERIFIED";
+      SCANLBL = fr ? "ANALYSE BIOMÉTRIQUE" : "BIOMETRIC SCAN";
+    };
+    setLabels();
+    document.addEventListener("langchange", (e) => {
+      setLabels();
+      hudText = $$(".portrait__hud span", e.detail.doc).map((s) => s.textContent);
+      if (box.classList.contains("fx-done")) hud.forEach((s, i) => { s.textContent = hudText[i]; });
+    });
 
     box.classList.add("fx-armed");
     box.style.setProperty("--reveal", "0%");
