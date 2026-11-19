@@ -9,8 +9,78 @@
   body.classList.add("is-loading");
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   const toTop = () => window.scrollTo({ top: 0, behavior: "instant" });
-  toTop();
-  window.addEventListener("load", () => { if (!location.hash) toTop(); });
+
+  // Language wave: arriving from the language switch keeps the visitor on the
+  // same section and reveals this page as a wave spreading from the toggle.
+  let wave = null;
+  try {
+    wave = JSON.parse(sessionStorage.getItem("langWave") || "null");
+    sessionStorage.removeItem("langWave");
+  } catch (e) {}
+  if (wave && Date.now() - wave.t > 8000) wave = null;
+  if (wave) {
+    const sec = wave.section && document.getElementById(wave.section);
+    const y = sec ? sec.getBoundingClientRect().top + window.scrollY + wave.offset : 0;
+    // scroll snap would pull us back to the section start, so pause it until the wave is done
+    document.documentElement.style.scrollSnapType = "none";
+    window.scrollTo({ top: Math.max(0, y), behavior: "instant" });
+    setTimeout(() => { document.documentElement.style.scrollSnapType = ""; }, 2500);
+  } else toTop();
+  window.addEventListener("load", () => { if (!location.hash && !wave) toTop(); });
+
+  window.addEventListener("pagereveal", (e) => {
+    if (!e.viewTransition) return;
+    e.viewTransition.ready.catch(() => {});
+    e.viewTransition.finished.catch(() => {});
+    if (!wave || reduced) { e.viewTransition.skipTransition(); return; }
+    const { x, y } = wave;
+    const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 40;
+    const D = 1250, E = "cubic-bezier(0.6, 0, 0.25, 1)";
+    const rings = [0, 140].map((delay, i) => {
+      const el = document.createElement("div");
+      el.className = "lang-wave" + (i ? " trail" : "");
+      el.style.left = x + "px"; el.style.top = y + "px";
+      el.style.width = el.style.height = "0px";
+      document.body.appendChild(el);
+      return { el, delay };
+    });
+    e.viewTransition.ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${R}px at ${x}px ${y}px)`] },
+        { duration: D, easing: E, pseudoElement: "::view-transition-new(root)" }
+      );
+      rings.forEach(({ el, delay }) => {
+        el.animate(
+          [
+            { width: "0px", height: "0px", opacity: 1 },
+            { width: 1.4 * R + "px", height: 1.4 * R + "px", opacity: 1, offset: 0.7 },
+            { width: 2 * R + "px", height: 2 * R + "px", opacity: 0 },
+          ],
+          { duration: D, delay, easing: E, fill: "both" }
+        ).finished.then(() => el.remove());
+      });
+    }).catch(() => rings.forEach(({ el }) => el.remove()));
+  });
+
+  // Leaving through the language switch: remember where the wave starts and
+  // which section the visitor is reading, so the other language opens there.
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest(".lang__opt");
+    if (!a || a.classList.contains("is-active")) return;
+    if (!("onpagereveal" in window)) return;
+    const r = a.getBoundingClientRect();
+    let section = null, offset = 0;
+    document.querySelectorAll("section[id]").forEach((s) => {
+      const top = s.getBoundingClientRect().top + window.scrollY;
+      if (top <= window.scrollY + 2) { section = s.id; offset = window.scrollY - top; }
+    });
+    try {
+      sessionStorage.setItem("langWave", JSON.stringify({
+        x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2),
+        section, offset: Math.round(offset), t: Date.now(),
+      }));
+    } catch (err) {}
+  }, true);
 
   /* ---------- Preloader: terminal boot ---------- */
   const fr = document.documentElement.lang === "fr";
@@ -138,6 +208,23 @@
     if (!watchers.has(target)) { watchers.set(target, []); io.observe(target); }
     watchers.get(target).push(el);
   });
+  // Arriving through the language wave: what is on screen is shown already
+  // settled, so the wave uncovers the finished page instead of a blank one.
+  if (wave) {
+    [...watchers.keys()].forEach((t) => {
+      const r = t.getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= innerHeight) return;
+      watchers.get(t).forEach((el) => {
+        el.style.transition = "none";
+        el.classList.remove("reveal");
+        $$("[data-count]", el).forEach((c) => { c.dataset.done = 1; c.textContent = String(c.dataset.count).padStart(+(c.dataset.pad || 0), "0"); });
+        if (el.classList.contains("stat")) el.parentElement.classList.add("lit");
+        requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ""; el.style.transitionDelay = ""; }));
+      });
+      watchers.delete(t);
+      io.unobserve(t);
+    });
+  }
 
   /* ---------- Nav + menu ---------- */
   const nav = $("#nav");
