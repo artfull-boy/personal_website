@@ -394,9 +394,9 @@
   const syncTheme = () => {
     const light = isLight();
     if (themeBtn) themeBtn.setAttribute("aria-label", light ? themeBtn.dataset.toDark : themeBtn.dataset.toLight);
-    if (themeMeta) themeMeta.setAttribute("content", light ? "#f3f5f8" : "#07080a");
+    if (themeMeta) themeMeta.setAttribute("content", light ? "#eef1f5" : "#07080a");
     Object.assign(ink, light
-      ? { line: "44,106,166", hub: "rgba(30,80,135,0.85)", node: "rgba(44,106,166,0.5)", ring: "rgba(44,106,166,0.3)", packet: "44,106,166", k: 1.5 }
+      ? { line: "35,92,147", hub: "rgba(28,74,122,0.85)", node: "rgba(35,92,147,0.5)", ring: "rgba(35,92,147,0.3)", packet: "35,92,147", k: 1.5 }
       : { line: "159,195,230", hub: "rgba(220,235,250,0.9)", node: "rgba(159,195,230,0.55)", ring: "rgba(159,195,230,0.25)", packet: "220,240,255", k: 1 });
   };
   let themeTimer = 0;

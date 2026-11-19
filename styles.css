@@ -482,7 +482,7 @@ a { color: inherit; text-decoration: none; transition: color 0.45s var(--ease-so
 .lab__svg .pkt--ver { fill: var(--ok); filter: drop-shadow(0 0 4px var(--ok)); }
 .lab__log { border-left: 1px solid var(--line); padding: 18px; font-size: 11.5px; line-height: 1.7; color: #a9b2bf; height: min(420px, 34vh); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
 .lab__log div { animation: logIn 0.4s var(--ease); padding-left: 64px; text-indent: -64px; }
-.lab__log .t { color: #5b6370; }
+.lab__log .t { color: #7a8391; }
 .lab__log .a { color: var(--alert); }
 .lab__log .g { color: var(--ok); }
 .lab__log .b { color: var(--ice); }
@@ -871,26 +871,26 @@ a { color: inherit; text-decoration: none; transition: color 0.45s var(--ease-so
 }
 html[data-theme="light"] {
   color-scheme: light;
-  --bg: #f3f5f8;
-  --bg-2: #e9edf2;
-  --bg-3: #dfe5ec;
+  --bg: #eef1f5;
+  --bg-2: #ffffff;
+  --bg-3: #f3f6f9;
   --line: rgba(14, 24, 38, 0.1);
-  --line-2: rgba(14, 24, 38, 0.17);
+  --line-2: rgba(14, 24, 38, 0.16);
   --text: #0b0e13;
-  --muted: #5a6472;
-  --ice: #2c6aa6;
-  --ice-2: #3b7fc0;
+  --muted: #56606e;
+  --ice: #235c93;
+  --ice-2: #2f6fae;
   --ice-deep: #c3d8ec;
-  --ok: #0b9a5c;
-  --alert: #d93445;
+  --ok: #05703f;
+  --alert: #c42b3c;
   --fg: #0b0e13;
   --hi: #0b0e13;
   --text-1: #262d37;
   --text-2: #333b47;
   --text-3: #46505d;
-  --dim: #9aa3af;
+  --dim: #687180;
   --panel: #ffffff;
-  --panel-2: #f8fafc;
+  --panel-2: #ffffff;
   --panel-3: #ffffff;
   --shade: rgba(20, 35, 55, 0.2);
 }
@@ -952,3 +952,17 @@ html:not([data-theme="light"]) .theme-toggle svg { transform: rotate(-30deg); }
 @media (max-width: 760px) { .theme-toggle { width: 34px; height: 34px; } }
 html[data-theme="light"] .lang-wave { box-shadow: inset 0 0 0 1.5px rgba(44, 106, 166, 0.85), inset 0 0 22px 2px rgba(59, 127, 192, 0.35); }
 html[data-theme="light"] .lang-wave.trail { box-shadow: inset 0 0 0 1px rgba(44, 106, 166, 0.35), inset 0 0 40px 6px rgba(59, 127, 192, 0.1); }
+
+/* ---------- Light theme polish: depth comes from soft shadows, not grey fills ---------- */
+:where(html[data-theme="light"]) :is(.proj, .award, .edu, .radar__detail, .radar__item, .certs, .intro__record) {
+  box-shadow: 0 1px 2px rgba(16, 28, 45, 0.05), 0 10px 30px -14px rgba(16, 28, 45, 0.16);
+}
+html[data-theme="light"] .btn--ghost { background: rgba(255, 255, 255, 0.75); }
+html[data-theme="light"] .btn--ghost:hover { background: #ffffff; }
+html[data-theme="light"] .radar__item .num { opacity: 1; }
+html[data-theme="light"] .claim__hash { color: rgba(35, 92, 147, 0.06); }
+html[data-theme="light"] .claim.verified .claim__hash { color: rgba(6, 122, 72, 0.07); }
+html[data-theme="light"] .lab { box-shadow: 0 40px 90px -50px rgba(16, 28, 45, 0.45); }
+html[data-theme="light"] ::selection { background: #235c93; color: #fff; }
+html[data-theme="light"] .cert { background: #ffffff; }
+html[data-theme="light"] .cert:hover { background: var(--bg-3); }
